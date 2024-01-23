@@ -72,12 +72,15 @@ for div in range (1,4):
         df_standings['PA']=[dr['P'][x][1] for x in df_standings.Tnum]
         df_standings['PD']=(df_standings.PF-df_standings.PA)
         df_standings['PR']=(df_standings.PF/(df_standings.PF+df_standings.PA)).round(4)
+        df_standings['PFm']=(df_standings.PF/(df_standings.MP)).round(4)
+        df_standings['PAm']=(df_standings.PA/(df_standings.MP)).round(4)
+        df_standings['PDm']=(df_standings.PD/(df_standings.MP)).round(4)
 
     df_standings["Rank"] = df_standings[['MR','MW','PR','PF']].apply(tuple,axis=1)\
              .rank(method='dense',ascending=False).astype(int)
 
     df_standings = df_standings.sort_values("Rank")
-    df_standings = df_standings[['Rank','Team','MP','MW','ML','MR','PF','PA','PD','PR']]
+    df_standings = df_standings[['Rank','Team','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
     print(df_standings.reset_index(drop=True).to_string())
 
     current_ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")

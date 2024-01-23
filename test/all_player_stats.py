@@ -75,9 +75,9 @@ for div in range (1,4):
             df_stats['PF']=len(df_stats)*[0]
             df_stats['PA']=len(df_stats)*[0]
             df_stats['PD']=len(df_stats)*[0]
-            df_stats['PF/M']=len(df_stats)*[0.0]
-            df_stats['PA/M']=len(df_stats)*[0.0]
-            df_stats['PD/M']=len(df_stats)*[0.0]
+            df_stats['PFm']=len(df_stats)*[0.0]
+            df_stats['PAm']=len(df_stats)*[0.0]
+            df_stats['PDm']=len(df_stats)*[0.0]
             df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
 
         else:
@@ -89,16 +89,16 @@ for div in range (1,4):
             df_stats['PF']=[dr['P'][x][0] for x in df_stats.PLAYER]
             df_stats['PA']=[dr['P'][x][1] for x in df_stats.PLAYER]
             df_stats['PD']=(df_stats.PF-df_stats.PA)
-            df_stats['PF/M']=(df_stats.PF/(df_stats.MP)).round(4)
-            df_stats['PA/M']=(df_stats.PA/(df_stats.MP)).round(4)
-            df_stats['PD/M']=(df_stats.PD/(df_stats.MP)).round(4)
+            df_stats['PFm']=(df_stats.PF/(df_stats.MP)).round(4)
+            df_stats['PAm']=(df_stats.PA/(df_stats.MP)).round(4)
+            df_stats['PDm']=(df_stats.PD/(df_stats.MP)).round(4)
             df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
 
     df_stats = df_stats.loc[[df_stats.PLAYER!=x for x in subs[div]][0]]
-    df_stats["Rank"] = df_stats[['MR','MW','PR','PF']].apply(tuple,axis=1)\
+    df_stats["RANK"] = df_stats[['MR','MW','PR','PF']].apply(tuple,axis=1)\
         .rank(method='min',ascending=False).astype(int)
-    df_stats = df_stats.sort_values("Rank")
-    df_stats = df_stats[['Rank','PLAYER','MP','MW','ML','MR','PF','PA','PD','PF/M','PA/M','PD/M','PR']]
+    df_stats = df_stats.sort_values("RANK")
+    df_stats = df_stats[['RANK','PLAYER','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
     #df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/4))))
     print(df_stats.reset_index(drop=True).to_string())
 
@@ -116,10 +116,10 @@ for i in range(3):
     for j in range(1,len(dfl[i])+1):
         divl.append(i+1)
 df_all['DIV'] = divl
-df_all["Rank"] = df_all[['MR','MW','PR','PF']].apply(tuple,axis=1)\
+df_all["RANK"] = df_all[['MR','MW','PR','PF']].apply(tuple,axis=1)\
     .rank(method='min',ascending=False).astype(int)
-df_all = df_all.sort_values("Rank")
-df_all = df_all[['Rank','PLAYER','DIV','MP','MW','ML','MR','PF','PA','PD','PF/M','PA/M','PD/M','PR']]
+df_all = df_all.sort_values("RANK")
+df_all = df_all[['RANK','PLAYER','DIV','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
 all_stats_ws = sh.worksheet("ALL PLAYERS")
 set_with_dataframe(all_stats_ws, df_all, row=3, col=2)
 
