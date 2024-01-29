@@ -19,9 +19,9 @@ d_team={1:['Mid Court Crisis (T-1)','Team 2 (T-2)','Bangstreet Boyz (T-3)', \
 
 
 for div in range (1,4):
-    schedule_ws = sh.worksheet(f"S {div}")
+    schedule_ws = sh.worksheet(f"D{div}_Sched")
 
-    schedule = get_as_dataframe(schedule_ws,nrows=23)[['Tm A','Tm B','Pts A','Pts B']]
+    schedule = get_as_dataframe(schedule_ws,nrows=97)[['Tm A','Tm B','Pts A','Pts B']]
 
     played = schedule[pd.notna(schedule['Pts A'])]
 

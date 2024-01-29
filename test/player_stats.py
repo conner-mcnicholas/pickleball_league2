@@ -8,17 +8,17 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("TESTING_SCALPEL RESOURCES")
 
-subs = {1:["?"],2:['Dave-J*',"?"],3:["?"]}
+subs = {1:["Dave-R-sub*","Evan-sub*","?"],2:['Dave-J*',"Carina-Sub*","?"],3:["?"]}
 
 for div in range (1,4):
-    schedule_ws = sh.worksheet(f"S {div}")
-    schedule = get_as_dataframe(schedule_ws,nrows=27)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
+    schedule_ws = sh.worksheet(f"D{div}_Sched")
+    schedule = get_as_dataframe(schedule_ws,nrows=97)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
 
     if len(played) == 0:
         break
 
-    players_ws = sh.worksheet("P")
+    players_ws = sh.worksheet("Player Info")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum())[['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
     df_players = df_players[df_players.DIVn == div]
     players = list(df_players.PLAYER)

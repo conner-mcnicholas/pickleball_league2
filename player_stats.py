@@ -8,27 +8,27 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("SCALPEL RESOURCES")
 
-subs = {1:["?"],2:['Dave-J*',"?"],3:["?"]}
-
+subs = {1:["Dave-R-sub*","Evan-sub*","?"],2:['Dave-J*',"Carina-Sub*","?"],3:["?"]}
+print('hi')
 for div in range (1,4):
-    schedule_ws = sh.worksheet(f"S {div}")
+    schedule_ws = sh.worksheet(f"D{div}_Sched")
     schedule = get_as_dataframe(schedule_ws,nrows=70)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
 
     if len(played) == 0:
         break
 
-    players_ws = sh.worksheet("P")
+    players_ws = sh.worksheet("Player Info")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum())[['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
     df_players = df_players[df_players.DIVn == div]
     players = list(df_players.PLAYER)
     players.append("?")
 
     dr={'M':{},'P':{}}
-
     for p in players:
         for k in ['M','P']:
             dr[k][p]=[0,0]
+    print(dr)
 
     allplayers = []
     for p in ['Player A1','Player A2','Player B1','Player B2']:
@@ -51,6 +51,7 @@ for div in range (1,4):
             
             dr['M'][A2][0]+=1
             dr['M'][B2][1]+=1
+            #print(dr)
         else:
             #print(f'{B} beat {A}by score:{PB}-{PA}')
             dr['M'][A1][1]+=1
@@ -81,6 +82,7 @@ for div in range (1,4):
 
         else:
             df_stats = df_stats[pd.notna(df_stats.PLAYER)]
+            #print(dr)
             df_stats['MW']=[dr['M'][x][0] for x in df_stats.PLAYER]
             df_stats['ML']=[dr['M'][x][1] for x in df_stats.PLAYER]
             df_stats['MR']=(df_stats.MW/df_stats.MP).round(4)
