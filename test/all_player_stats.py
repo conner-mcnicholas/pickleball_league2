@@ -8,18 +8,18 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("TESTING_SCALPEL RESOURCES")
 
-subs = {1:["?"],2:['Dave-J*',"?"],3:["?"]}
+subs = {1:["Dave-R-Sub*","Evan-Sub*","?"],2:['Dave-J-Sub*',"Carina-Sub*","?"],3:["?"]}
 dfl = []
 
 for div in range (1,4):
-    schedule_ws = sh.worksheet(f"S {div}")
+    schedule_ws = sh.worksheet(f"D{div}_Sched")
     schedule = get_as_dataframe(schedule_ws,nrows=70)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
 
     if len(played) == 0:
         break
 
-    players_ws = sh.worksheet("P")
+    players_ws = sh.worksheet("Player Info")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum())[['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
     df_players = df_players[df_players.DIVn == div]
     players = list(df_players.PLAYER)
@@ -99,12 +99,9 @@ for div in range (1,4):
         .rank(method='min',ascending=False).astype(int)
     df_stats = df_stats.sort_values("RANK")
     df_stats = df_stats[['RANK','PLAYER','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
-    #df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/4))))
     print(df_stats.reset_index(drop=True).to_string())
 
-    current_ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
-    f = open(f"/home/conner/pickleball_league2/test/stats_updatelog_d{div}.txt", "a")
-    f.write(f'{len(played)} matches in stats | UPDATING ADHOC | {current_ts}\n')
+    #df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/4))))
     stats_ws = sh.worksheet(f"A{div}")
     #set_with_dataframe(stats_ws, df_stats_tophalf, row=3, col=2)
     set_with_dataframe(stats_ws, df_stats, row=3, col=2)
