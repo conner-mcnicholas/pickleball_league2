@@ -19,7 +19,7 @@ d_team={1:['Mid Court Crisis (T-1)','Team 2 (T-2)','Bangstreet Boyz (T-3)', \
 
 
 for div in range (1,4):
-    schedule_ws = sh.worksheet(f"D{div}_Sched")
+    schedule_ws = sh.worksheet(f"D{div}.2")
 
     schedule = get_as_dataframe(schedule_ws,nrows=97)[['Tm A','Tm B','Pts A','Pts B']]
 
@@ -80,8 +80,5 @@ for div in range (1,4):
     df_standings = df_standings[['Rank','Team','MP','MW','ML','MR','PF','PA','PD','PR']]
     print(df_standings.reset_index(drop=True).to_string())
 
-    current_ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
-    f = open(f"/home/conner/pickleball_league2/test/standings_updatelog_d{div}.txt", "a")
-    f.write(f'{len(played)} matches in standings | UPDATING D{div} STANDINGS | {current_ts}\n')
-    standings_ws = sh.worksheet(f"D{div}")
+    standings_ws = sh.worksheet(f"S{div}.2")
     set_with_dataframe(standings_ws, df_standings, row=2, col=2)

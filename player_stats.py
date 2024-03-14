@@ -8,17 +8,17 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("SCALPEL RESOURCES")
 
-subs = {1:["Dave-R-Sub*","Evan-Sub*","?"],2:['Dave-J-Sub*',"Carina-Sub*","?"],3:["?"]}
+subs = {1:["Jack-Sub*","?"],2:["?"],3:["?"]}
 
-for div in range (1,4):
-    schedule_ws = sh.worksheet(f"D{div}_Sched")
+for div in range (1,3):
+    schedule_ws = sh.worksheet(f"D{div}.2")
     schedule = get_as_dataframe(schedule_ws,nrows=100)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
 
     if len(played) == 0:
         break
 
-    players_ws = sh.worksheet("Player Info")
+    players_ws = sh.worksheet("Player Info.2")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum())[['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
     df_players = df_players[df_players.DIVn == div]
     players = list(df_players.PLAYER)
@@ -94,8 +94,8 @@ for div in range (1,4):
             df_stats['PAm']=(df_stats.PA/(df_stats.MP)).round(4)
             df_stats['PDm']=(df_stats.PD/(df_stats.MP)).round(4)
             df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
-
-    df_stats = df_stats.loc[[df_stats.PLAYER!=x for x in subs[div]][0]]
+    df_stats = df_stats[~df_stats['PLAYER'].isin(subs[div])]
+    #df_stats = df_stats[[df_stats.PLAYER!=x for x in subs[div]][0]]
     df_stats["RANK"] = df_stats[['MR','MW','PR','PF']].apply(tuple,axis=1)\
         .rank(method='min',ascending=False).astype(int)
     df_stats = df_stats.sort_values("RANK")
@@ -103,5 +103,5 @@ for div in range (1,4):
     print(df_stats.reset_index(drop=True).to_string())
 
     df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/4))))
-    stats_ws = sh.worksheet(f"A{div}")
+    stats_ws = sh.worksheet(f"A{div}.2")
     set_with_dataframe(stats_ws, df_stats_tophalf, row=3, col=2)
