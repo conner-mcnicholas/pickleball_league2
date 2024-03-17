@@ -8,7 +8,8 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("TESTING_SCALPEL RESOURCES")
 
-subs = {1:["Dave-R-Sub*","Evan-Sub*","?"],2:['Dave-J-Sub*',"Carina-Sub*","?"],3:["?"]}
+subs = {1:["Jack-Sub*","?"],2:["?"],3:["?"]}
+
 dfl = []
 
 for div in range (1,4):
@@ -94,7 +95,7 @@ for div in range (1,4):
             df_stats['PDm']=(df_stats.PD/(df_stats.MP)).round(4)
             df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
 
-    df_stats = df_stats.loc[[df_stats.PLAYER!=x for x in subs[div]][0]]
+    df_stats = df_stats[~df_stats['PLAYER'].isin(subs[div])]
     df_stats["RANK"] = df_stats[['MR','MW','PR','PF']].apply(tuple,axis=1)\
         .rank(method='min',ascending=False).astype(int)
     df_stats = df_stats.sort_values("RANK")

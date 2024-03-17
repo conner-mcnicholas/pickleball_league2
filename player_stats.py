@@ -10,7 +10,7 @@ sh = sa.open("SCALPEL RESOURCES")
 
 subs = {1:["Jack-Sub*","?"],2:["?"],3:["?"]}
 
-for div in range (1,3):
+for div in range (1,4):
     schedule_ws = sh.worksheet(f"D{div}.2")
     schedule = get_as_dataframe(schedule_ws,nrows=100)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]

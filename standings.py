@@ -17,7 +17,7 @@ d_team={1:['The Ass Paddlers (T-1)','Mid Court Crisis (T-2)','Bangstreet Boyz (T
     'Kitchen Killers (T-4)','The Kitchen Avengers (T-5)','Pickleddink (T-6)', \
     'Free Radicals (T-7)']}
 
-for div in range (1,3):
+for div in range (1,4):
     schedule_ws = sh.worksheet(f"D{div}.2")
 
     schedule = get_as_dataframe(schedule_ws,nrows=99)[['Tm A','Tm B','Pts A','Pts B']]

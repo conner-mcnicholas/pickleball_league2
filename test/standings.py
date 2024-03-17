@@ -8,15 +8,14 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("TESTING_SCALPEL RESOURCES")
 
-d_team={1:['Mid Court Crisis (T-1)','Team 2 (T-2)','Bangstreet Boyz (T-3)', \
-        'Mighty Gherkins (T-4)','The Ass Paddlers (T-5)', \
-        'NDYNK (T-6)', 'Silver Foxes (T-7)'],
-        2:['Wonder Women (T-1)','Team Body Baggers (T-2)','Day Dinkers (T-3)', \
-        'Do It With Relish (T-4)','The Motley Krew (T-5)', \
-        'Not My Fault (T-6)', 'SC Dink Attack (T-7)','Jolt (T-8)','Midtown Masters (T-9)'],
-        3:['Free Radicals (T-1)','Mid Court Crises (T-2)','Kitchen Killers (T-3)', \
-        'Pickleddink (T-4)','The Kitchen Avengers (T-5)','Dinky Time (T-6)']}
-
+d_team={1:['The Ass Paddlers (T-1)','Mid Court Crisis (T-2)','Bangstreet Boyz (T-3)', \
+    'Team 4 (T-4)','NDYNK (T-5)','Team Body Baggers (T-6)'], 
+    2:['Silver Foxes (T-1)','Mighty Gherkins (T-2)','Do It With Relish (T-3)', \
+    'Not My Fault (T-4)','Midtown Masters (T-5)','SC Dink Attack (T-6)', \
+    'The Motley Krew (T-7)','Mid Court Crises (T-8)','Dinky Time (T-9)'],
+    3:['Wonder Women (T-1)','Day Dinkers (T-2)','Jolt (T-3)', \
+    'Kitchen Killers (T-4)','The Kitchen Avengers (T-5)','Pickleddink (T-6)', \
+    'Free Radicals (T-7)']}
 
 for div in range (1,4):
     schedule_ws = sh.worksheet(f"D{div}.2")
