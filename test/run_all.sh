@@ -1,3 +1,4 @@
 #!/bin/bash
 
-$HOME/optminiconda3/bin/python $HOME/pickleball_league2/standings.py
+python $HOME/pickleball_league2/test/standings.py
+python $HOME/pickleball_league2/test/all_player_stats.py

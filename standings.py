@@ -35,7 +35,7 @@ for div in range (1,4):
 
         A,B = match[['Tm A','Tm B']]
         PA,PB = match[['Pts A','Pts B']]
-        print(f'm:{m}, match:{match}')
+
         if PA > PB:
             #print(f'{A} beat {B}')
             dr['M'][A][0]+=1
@@ -50,10 +50,6 @@ for div in range (1,4):
         dr['P'][B]=[dr['P'][B][0]+PB,dr['P'][B][1]+PA]
 
     df_standings = pd.DataFrame(Counter(pd.concat([played['Tm A'],played['Tm B']])).items(),columns=['Tnum','MP']).sort_values('Tnum')
-    #if div == 1:
-    #     df_standings['Team'] = list(set(d_team[1]).symmetric_difference({(d_team[1][2])}))
-    #else:
-    #    df_standings['Team'] = d_team[div]
     df_standings['Team'] = d_team[div]
 
 

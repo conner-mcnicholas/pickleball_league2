@@ -100,7 +100,7 @@ for div in range (1,4):
         .rank(method='min',ascending=False).astype(int)
     df_stats = df_stats.sort_values("RANK")
     df_stats = df_stats[['RANK','PLAYER','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
-    print(df_stats.reset_index(drop=True).to_string())
+    #print(df_stats.reset_index(drop=True).to_string())
 
     #df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/4))))
     stats_ws = sh.worksheet(f"A{div}.2")
@@ -118,6 +118,7 @@ df_all["RANK"] = df_all[['MR','MW','PR','PF']].apply(tuple,axis=1)\
     .rank(method='min',ascending=False).astype(int)
 df_all = df_all.sort_values("RANK")
 df_all = df_all[['RANK','PLAYER','DIV','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
+print(df_all.reset_index(drop=True).to_string())
 all_stats_ws = sh.worksheet("ALL PLAYERS")
 set_with_dataframe(all_stats_ws, df_all, row=3, col=2)
 
