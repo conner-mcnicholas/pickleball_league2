@@ -17,10 +17,10 @@ d_team={1:['The Ass Paddlers (T-1)','Mid Court Crisis (T-2)','Bangstreet Boyz (T
     'Kitchen Killers (T-4)','The Kitchen Avengers (T-5)','Pickleddink (T-6)', \
     'Free Radicals (T-7)']}
 
-for div in range (1,4):
+for div in range (1,len(d_team)+1):
     schedule_ws = sh.worksheet(f"D{div}.2")
 
-    schedule = get_as_dataframe(schedule_ws,nrows=99)[['Tm A','Tm B','Pts A','Pts B']]
+    schedule = get_as_dataframe(schedule_ws,nrows=99)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
 
     played = schedule[pd.notna(schedule['Pts A'])]
 
@@ -63,7 +63,7 @@ for div in range (1,4):
         df_standings['PA']=len(df_standings)*[0]
         df_standings['PD']=len(df_standings)*[0]
         df_standings['PR']=len(df_standings)*[0.0]
-        print('     len(played)==0!!!')
+        #print('     len(played)==0!!!')
     else:
         df_standings['MW']=[dr['M'][x][0] for x in df_standings.Tnum]
         df_standings['ML']=[dr['M'][x][1] for x in df_standings.Tnum]
@@ -76,13 +76,31 @@ for div in range (1,4):
         df_standings['PFm']=(df_standings.PF/(df_standings.MP)).round(4)
         df_standings['PAm']=(df_standings.PA/(df_standings.MP)).round(4)
         df_standings['PDm']=(df_standings.PD/(df_standings.MP)).round(4)
-        print(f'df_standings: {df_standings.reset_index(drop=True).to_string()}')
-    df_standings["Rank"] = df_standings[['MR','MW','PR','PF']].apply(tuple,axis=1)\
+        #print(f'df_standings: {df_standings.reset_index(drop=True).to_string()}')
+    
+    ds = {}
+    num_teams = len(d_team[div])
+    for n in range(1,1+num_teams):
+            ds[n]=0
+
+    for t in ["A","B"]:
+        for p in [1,2]:
+            subteams = played[f'Tm {t}'][played[f'Player {t}{p}'].str.contains('\*')]
+            for tsub in subteams:
+                ds[tsub]+=1
+                #print(f'div: {div} --< subteams: {subteams}')
+
+   
+    df_standings=pd.merge(df_standings,pd.DataFrame(ds.items(),columns=['Tnum','subs']),on="Tnum")
+    df_standings['NS'] = 1-(df_standings['subs']/(df_standings['MP']*2)).round(2)
+
+    df_standings["RANK"] = df_standings[['MR','NS','PR']].apply(tuple,axis=1)\
              .rank(method='dense',ascending=False).astype(int)
 
-    df_standings = df_standings.sort_values("Rank")
-    df_standings = df_standings[['Rank','Team','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
+    df_standings = df_standings.sort_values("RANK")
+    df_standings = df_standings[['RANK','Team','MP','MW','ML','MR','NS','PR','PF','PA','PD','PFm','PAm','PDm']]
     print(df_standings.reset_index(drop=True).to_string())
+    print("\n\n")
 
     standings_ws = sh.worksheet(f"S{div}.2")
     set_with_dataframe(standings_ws, df_standings, row=2, col=2)

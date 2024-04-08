@@ -12,7 +12,7 @@ subs = {1:["Jack-Sub*","?"],2:["?"],3:["?"]}
 
 dfl = []
 
-for div in range (1,4):
+for div in range (1,2):
     schedule_ws = sh.worksheet(f"D{div}.2")
     schedule = get_as_dataframe(schedule_ws,nrows=70)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
@@ -108,9 +108,10 @@ for div in range (1,4):
     set_with_dataframe(stats_ws, df_stats, row=3, col=2)
     dfl.append(df_stats)
 
-df_all = pd.concat([dfl[0],dfl[1],dfl[2]])
+df_all = pd.concat([dfl[x] for x in range(div)])
+#df_all = pd.concat([dfl[0],dfl[1],dfl[2]])
 divl=[]
-for i in range(3):
+for i in range(div):
     for j in range(1,len(dfl[i])+1):
         divl.append(i+1)
 df_all['DIV'] = divl
