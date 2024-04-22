@@ -8,7 +8,7 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("TESTING_SCALPEL RESOURCES")
 
-subs = {1:["Jack-Sub*","?"],2:["?"],3:["?"]}
+subs = {1:["Jack-Sub*","noshow-sub*","nofault-sub"],2:["Colleen-Sub*","Diego-Sub*","noshow-sub*","nofault-sub"],3:["noshow-sub*","nofault-sub"]}
 
 dfl = []
 
@@ -25,6 +25,11 @@ for div in range (1,2):
     df_players = df_players[df_players.DIVn == div]
     players = list(df_players.PLAYER)
     players.append("?")
+    players.append("nofault-sub")
+    players.append("noshow-sub*")
+    players.append("?")
+    players.append("Colleen-Sub*")
+    players.append("Diego-Sub*")
 
     dr={'M':{},'P':{}}
 

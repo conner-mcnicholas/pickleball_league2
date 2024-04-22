@@ -8,7 +8,7 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("SCALPEL RESOURCES")
 
-subs = {1:["Jack-Sub*","noshow-sub*","nofault-sub"],2:["Colleen-Sub*","noshow-sub*","nofault-sub"],3:["noshow-sub*","nofault-sub"]}
+subs = {1:["Jack-Sub*","noshow-sub*","nofault-sub"],2:["Colleen-Sub*","Diego-Sub*","noshow-sub*","nofault-sub"],3:["noshow-sub*","nofault-sub"]}
 
 for div in range (1,4):
     schedule_ws = sh.worksheet(f"D{div}.2")
@@ -28,6 +28,7 @@ for div in range (1,4):
     players.append("noshow-sub*")
     players.append("?")
     players.append("Colleen-Sub*")
+    players.append("Diego-Sub*")
     
     dr={'M':{},'P':{}}
     for p in players:
