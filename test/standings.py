@@ -18,7 +18,7 @@ d_team={1:['The Ass Paddlers (T-1)','Mid Court Crisis (T-2)','Bangstreet Boyz (T
     'Free Radicals (T-7)']}
 
 for div in range (1,len(d_team)+1):
-    schedule_ws = sh.worksheet(f"D{div}.2")
+    schedule_ws = sh.worksheet(f"D{div} Scores")
 
     schedule = get_as_dataframe(schedule_ws,nrows=99)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
 

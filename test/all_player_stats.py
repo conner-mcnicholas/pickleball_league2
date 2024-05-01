@@ -8,19 +8,19 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("TESTING_SCALPEL RESOURCES")
 
-subs = {1:["Jack-Sub*","noshow-sub*","nofault-sub"],2:["Colleen-Sub*","Diego-Sub*","noshow-sub*","nofault-sub"],3:["noshow-sub*","nofault-sub"]}
+subs = {1:["Jack-Sub*","noshow-sub*","nofault-sub"],2:["Colleen-Sub*","Diego-Sub*","noshow-sub*","nofault-sub"],3:["Julie-Sub*","noshow-sub*","nofault-sub"]}
 
 dfl = []
 
-for div in range (1,2):
-    schedule_ws = sh.worksheet(f"D{div}.2")
+for div in range (1,4):
+    schedule_ws = sh.worksheet(f"D{div} Scores")
     schedule = get_as_dataframe(schedule_ws,nrows=70)[['Tm A','Tm B','Player A1','Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
 
     if len(played) == 0:
         break
 
-    players_ws = sh.worksheet("Player Info.2")
+    players_ws = sh.worksheet("Player Info")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum())[['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
     df_players = df_players[df_players.DIVn == div]
     players = list(df_players.PLAYER)
@@ -30,6 +30,7 @@ for div in range (1,2):
     players.append("?")
     players.append("Colleen-Sub*")
     players.append("Diego-Sub*")
+    players.append("Julie-Sub*")
 
     dr={'M':{},'P':{}}
 
