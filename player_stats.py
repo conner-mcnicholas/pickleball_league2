@@ -8,7 +8,7 @@ import numpy as np
 sa = gspread.service_account()
 sh = sa.open("SCALPEL RESOURCES")
 
-subs = {1:["Jack-Sub*","noshow-sub*","nofault-sub"],2:["Colleen-Sub*","Diego-Sub*","noshow-sub*","nofault-sub"],3:["noshow-sub*","nofault-sub"]}
+subs = {1:["Jack"],2:["Colleen","Diego","Alessandro","Jax"],3:["Julie"]}
 
 for div in range (1,4):
     schedule_ws = sh.worksheet(f"D{div} Scores")
@@ -23,32 +23,25 @@ for div in range (1,4):
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum()) \
         [['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
     df_players = df_players[df_players.DIVn == div]
-    players = list(df_players.PLAYER)
-    players.append("nofault-sub")
-    players.append("noshow-sub*")
-    players.append("?")
-    players.append("Colleen-Sub*")
-    players.append("Diego-Sub*")
-    players.append("Julie-Sub*")
-    players.append("Jack-Sub*")
     
+    subs[div]=pd.concat([pd.Series(["noshow-sub*","nofault-sub"]),pd.Series([f"{x}-Sub*" for x in subs[div]])])
+
+    players = list(pd.concat([df_players.PLAYER,pd.Series(subs[div])]))
     
     dr={'M':{},'P':{}}
     for p in players:
         for k in ['M','P']:
             dr[k][p]=[0,0]
 
-    allplayers = []
-    for p in ['Player A1','Player A2','Player B1','Player B2']:
-        for pi in list(played[p]):
-            allplayers.append(pi)
+    allplayers = list(pd.concat([played['Player A1'].str.strip(),played['Player A2'].str.strip(), \
+                                 played['Player B1'].str.strip(),played['Player B2'].str.strip()]))
     df_stats = pd.DataFrame(Counter(allplayers).items(),columns=['PLAYER','MP']).sort_values('PLAYER').reset_index(drop=True)
     df_stats = pd.concat([df_stats,df_players['SKILL']],axis=1)[['PLAYER','SKILL','MP']]
 
     for m in range(len(played)):
         match = played.iloc[m]
   
-        A1,A2,B1,B2 = match[['Player A1','Player A2','Player B1','Player B2',]]
+        A1,A2,B1,B2 = match[['Player A1','Player A2','Player B1','Player B2']].str.strip()
         PA,PB = match[['Pts A','Pts B']]
         
         #print(f'Pts A:{Pts A},Pts B:{Pts B}')
@@ -102,7 +95,7 @@ for div in range (1,4):
             df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
             
     df_stats = df_stats[~df_stats['PLAYER'].isin(subs[div])]
-    df_stats["RANK"] = df_stats[['MR','MW','PR','PF']].apply(tuple,axis=1)\
+    df_stats["RANK"] = df_stats[['MW','MR','PR','PF']].apply(tuple,axis=1)\
         .rank(method='min',ascending=False).astype(int)
     df_stats = df_stats.sort_values("RANK")
     df_stats = df_stats[['RANK','PLAYER','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
