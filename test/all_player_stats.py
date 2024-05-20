@@ -31,6 +31,7 @@ for div in range (1,4):
     players.append("Colleen-Sub*")
     players.append("Diego-Sub*")
     players.append("Julie-Sub*")
+    players.append("Jack-Sub*")
 
     dr={'M':{},'P':{}}
 
