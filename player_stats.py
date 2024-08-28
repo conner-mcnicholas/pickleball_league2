@@ -6,27 +6,24 @@ import datetime
 import numpy as np
 
 sa = gspread.service_account()
-sh = sa.open("SCALPEL RESOURCES")
+sh = sa.open("SCALPEL Ladder")
 
-subs = {1:["Jack"],2:["Colleen","Diego","Alessandro","Jax"],3:["Julie"]}
 
-for div in range (1,4):
-    schedule_ws = sh.worksheet(f"D{div} Scores")
-    schedule = get_as_dataframe(schedule_ws,nrows=100)[['Tm A','Tm B','Player A1', \
+for div in range (1,3):
+    schedule_ws = sh.worksheet(f"D{div}_Scores")
+    schedule = get_as_dataframe(schedule_ws,nrows=100)[['Player A1', \
         'Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
 
     if len(played) == 0:
         break
 
-    players_ws = sh.worksheet("Player Info")
+    players_ws = sh.worksheet("Players")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum()) \
-        [['DIVn','TEAMn','PLAYER','SKILL','AGE','EXP','GEN','CAP']]
-    df_players = df_players[df_players.DIVn == div]
+        [['PLAYER','DIV','SKILL','AGE','EXP','GEN']]
+    df_players = df_players[df_players.DIV == div]
     
-    subs[div]=pd.concat([pd.Series(["noshow-sub*","nofault-sub"]),pd.Series([f"{x}-Sub*" for x in subs[div]])])
-
-    players = list(pd.concat([df_players.PLAYER,pd.Series(subs[div])]))
+    players = list(df_players.PLAYER)
     
     dr={'M':{},'P':{}}
     for p in players:
@@ -35,8 +32,8 @@ for div in range (1,4):
 
     allplayers = list(pd.concat([played['Player A1'].str.strip(),played['Player A2'].str.strip(), \
                                  played['Player B1'].str.strip(),played['Player B2'].str.strip()]))
-    df_stats = pd.DataFrame(Counter(allplayers).items(),columns=['PLAYER','MP']).sort_values('PLAYER').reset_index(drop=True)
-    df_stats = pd.concat([df_stats,df_players['SKILL']],axis=1)[['PLAYER','SKILL','MP']]
+    df_stats = pd.DataFrame(Counter(allplayers).items(),columns=['PLAYER','GP']).sort_values('PLAYER').reset_index(drop=True)
+    df_stats = pd.merge(left=df_players[['PLAYER','SKILL']],right=df_stats,how='outer').fillna(0)
 
     for m in range(len(played)):
         match = played.iloc[m]
@@ -67,10 +64,10 @@ for div in range (1,4):
         dr['P'][B2]=[dr['P'][B2][0]+PB,dr['P'][B2][1]+PA]
 
         if len(played)==0:
-            df_stats['MP']=len(df_stats)*[0]
-            df_stats['MW']=len(df_stats)*[0]
-            df_stats['ML']=len(df_stats)*[0]
-            df_stats['MR']=len(df_stats)*[0.0]
+            df_stats['GP']=len(df_stats)*[0]
+            df_stats['W']=len(df_stats)*[0]
+            df_stats['L']=len(df_stats)*[0]
+            df_stats['WR']=len(df_stats)*[0.0]
 
             df_stats['PF']=len(df_stats)*[0]
             df_stats['PA']=len(df_stats)*[0]
@@ -82,25 +79,24 @@ for div in range (1,4):
 
         else:
             df_stats = df_stats[pd.notna(df_stats.PLAYER)]
-            df_stats['MW']=[dr['M'][x][0] for x in df_stats.PLAYER]
-            df_stats['ML']=[dr['M'][x][1] for x in df_stats.PLAYER]
-            df_stats['MR']=(df_stats.MW/df_stats.MP).round(4)
+            df_stats['W']=[dr['M'][x][0] for x in df_stats.PLAYER]
+            df_stats['L']=[dr['M'][x][1] for x in df_stats.PLAYER]
+            df_stats['WR']=(df_stats.W/df_stats.GP).round(4)
 
             df_stats['PF']=[dr['P'][x][0] for x in df_stats.PLAYER]
             df_stats['PA']=[dr['P'][x][1] for x in df_stats.PLAYER]
             df_stats['PD']=(df_stats.PF-df_stats.PA)
-            df_stats['PFm']=(df_stats.PF/(df_stats.MP)).round(4)
-            df_stats['PAm']=(df_stats.PA/(df_stats.MP)).round(4)
-            df_stats['PDm']=(df_stats.PD/(df_stats.MP)).round(4)
+            df_stats['PFm']=(df_stats.PF/(df_stats.GP)).round(4)
+            df_stats['PAm']=(df_stats.PA/(df_stats.GP)).round(4)
+            df_stats['PDm']=(df_stats.PD/(df_stats.GP)).round(4)
             df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
             
-    df_stats = df_stats[~df_stats['PLAYER'].isin(subs[div])]
-    df_stats["RANK"] = df_stats[['MW','MR','PR','PF']].apply(tuple,axis=1)\
+    df_stats["#"] = df_stats[['W','WR','PR','PF']].apply(tuple,axis=1)\
         .rank(method='min',ascending=False).astype(int)
-    df_stats = df_stats.sort_values("RANK")
-    df_stats = df_stats[['RANK','PLAYER','MP','MW','ML','MR','PF','PA','PD','PR','PFm','PAm','PDm']]
+    df_stats = df_stats.sort_values("#")
+    df_stats = df_stats[['#','PLAYER','GP','W','L','WR','PF','PA','PD','PR','PFm','PAm','PDm']]
     print(df_stats.reset_index(drop=True).to_string())
 
-    df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/4))))
-    stats_ws = sh.worksheet(f"A{div}.2")
-    set_with_dataframe(stats_ws, df_stats_tophalf, row=3, col=2)
+    #df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/2))))
+    stats_ws = sh.worksheet(f"A{div}")
+    set_with_dataframe(stats_ws, df_stats.fillna(0), row=3, col=2)
