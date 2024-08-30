@@ -10,7 +10,7 @@ sh = sa.open("SCALPEL Ladder")
 
 
 for div in range (1,3):
-    schedule_ws = sh.worksheet(f"D{div}_Scores")
+    schedule_ws = sh.worksheet(f"D{div} Results")
     schedule = get_as_dataframe(schedule_ws,nrows=100)[['Player A1', \
         'Player A2','Player B1','Player B2','Pts A','Pts B']]
     played = schedule[pd.notna(schedule['Pts A'])]
@@ -20,8 +20,8 @@ for div in range (1,3):
 
     players_ws = sh.worksheet("Players")
     df_players = get_as_dataframe(players_ws,nrows=pd.notna(get_as_dataframe(players_ws).PLAYER).sum()) \
-        [['PLAYER','DIV','SKILL','AGE','EXP','GEN']]
-    df_players = df_players[df_players.DIV == div]
+        [['PLAYER','D','RAT','AGE','EXP','GEN']]
+    df_players = df_players[df_players.D == div]
     
     players = list(df_players.PLAYER)
     
@@ -33,7 +33,7 @@ for div in range (1,3):
     allplayers = list(pd.concat([played['Player A1'].str.strip(),played['Player A2'].str.strip(), \
                                  played['Player B1'].str.strip(),played['Player B2'].str.strip()]))
     df_stats = pd.DataFrame(Counter(allplayers).items(),columns=['PLAYER','GP']).sort_values('PLAYER').reset_index(drop=True)
-    df_stats = pd.merge(left=df_players[['PLAYER','SKILL']],right=df_stats,how='outer').fillna(0)
+    df_stats = pd.merge(left=df_players[['PLAYER','RAT']],right=df_stats,how='outer').fillna(0)
 
     for m in range(len(played)):
         match = played.iloc[m]
@@ -71,11 +71,7 @@ for div in range (1,3):
 
             df_stats['PF']=len(df_stats)*[0]
             df_stats['PA']=len(df_stats)*[0]
-            df_stats['PD']=len(df_stats)*[0]
-            df_stats['PFm']=len(df_stats)*[0.0]
-            df_stats['PAm']=len(df_stats)*[0.0]
-            df_stats['PDm']=len(df_stats)*[0.0]
-            df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
+            df_stats['PD\'']=len(df_stats)*[0.0]
 
         else:
             df_stats = df_stats[pd.notna(df_stats.PLAYER)]
@@ -85,18 +81,17 @@ for div in range (1,3):
 
             df_stats['PF']=[dr['P'][x][0] for x in df_stats.PLAYER]
             df_stats['PA']=[dr['P'][x][1] for x in df_stats.PLAYER]
-            df_stats['PD']=(df_stats.PF-df_stats.PA)
-            df_stats['PFm']=(df_stats.PF/(df_stats.GP)).round(4)
-            df_stats['PAm']=(df_stats.PA/(df_stats.GP)).round(4)
-            df_stats['PDm']=(df_stats.PD/(df_stats.GP)).round(4)
-            df_stats['PR']=(df_stats.PF/(df_stats.PF+df_stats.PA)).round(4)
-            
-    df_stats["#"] = df_stats[['W','WR','PR','PF']].apply(tuple,axis=1)\
-        .rank(method='min',ascending=False).astype(int)
-    df_stats = df_stats.sort_values("#")
-    df_stats = df_stats[['#','PLAYER','GP','W','L','WR','PF','PA','PD','PR','PFm','PAm','PDm']]
+            df_stats['PD\'']=((df_stats.PF-df_stats.PA)/df_stats.GP).round(4)
+
+    df_stats = df_stats[df_stats.PLAYER !='George Propper']
+    if div == 2:
+        df_stats = df_stats[df_stats.PLAYER !='Mauricio Cuervo']           
+    df_stats.sort_values(['WR', 'PF','PD\''], ascending = [False, False,False], na_position ='last',inplace=True)
+    df_stats['#'] = range(1,len(df_stats)+1)
+    df_stats = df_stats[['#','PLAYER','GP','W','L','WR','PF','PA','PD\'']]
+    df_stats.loc[df_stats.GP==0,['GP','W','L','WR','PF','PA','PD\'']]=""
+
     print(df_stats.reset_index(drop=True).to_string())
 
-    #df_stats_tophalf = df_stats.head(int(np.floor((len(df_players)/2))))
-    stats_ws = sh.worksheet(f"A{div}")
-    set_with_dataframe(stats_ws, df_stats.fillna(0), row=3, col=2)
+    stats_ws = sh.worksheet(f"Leaderboard")
+    set_with_dataframe(stats_ws, df_stats, row=2, col=2+((div-1)*10))
